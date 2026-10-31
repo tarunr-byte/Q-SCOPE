@@ -12,14 +12,26 @@ import logging
 from typing import List
 
 import numpy as np
-import matplotlib
-
-# Force non-interactive backend to prevent crashes in FastAPI threads
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-from scipy.signal import spectrogram
 
 logger = logging.getLogger(__name__)
+
+# Safe non-interactive Matplotlib import with graceful headless fallback
+try:
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    HAS_MATPLOTLIB = True
+except Exception as _mpl_err:
+    logger.warning("Matplotlib not available or headless error (%s). Falling back gracefully.", _mpl_err)
+    HAS_MATPLOTLIB = False
+    plt = None
+
+try:
+    from scipy.signal import spectrogram
+    HAS_SCIPY = True
+except Exception as _sci_err:
+    logger.warning("Scipy signal not available (%s).", _sci_err)
+    HAS_SCIPY = False
 
 
 def generate_spectrogram_base64(samples: List[float], sampling_rate_hz: float = 200.0) -> str:
@@ -37,6 +49,10 @@ def generate_spectrogram_base64(samples: List[float], sampling_rate_hz: float = 
 
     if not samples or len(samples) < 16:
         logger.warning("Signal too short for spectrogram analysis.")
+        return ""
+
+    if not HAS_MATPLOTLIB or plt is None or not HAS_SCIPY:
+        logger.warning("[Spectrogram] Matplotlib or SciPy not available; skipping visual plot generation.")
         return ""
 
     fig = None
@@ -80,7 +96,7 @@ def generate_spectrogram_base64(samples: List[float], sampling_rate_hz: float = 
 
     except Exception as exc:
         logger.error("[Spectrogram] Failed to generate image: %s", exc)
-        if fig is not None:
+        if fig is not None and plt is not None:
             plt.close(fig)
         return ""
 
@@ -88,7 +104,7 @@ def generate_spectrogram_base64(samples: List[float], sampling_rate_hz: float = 
 def extract_dominant_frequency(samples: List[float], sampling_rate_hz: float = 200.0) -> float:
     """Extract dominant peak frequency from raw analog signal."""
     try:
-        if not samples or len(samples) < 16:
+        if not samples or len(samples) < 16 or not HAS_SCIPY:
             return 0.0
         nperseg = min(len(samples), 64)
         f, _, Sxx = spectrogram(np.asarray(samples, dtype=float), fs=sampling_rate_hz, nperseg=nperseg)
