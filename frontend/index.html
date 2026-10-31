@@ -2172,46 +2172,11 @@ body:hover .cursor-aura {
 }
 
 
-  /* MINIMAL CLEAN PROFESSIONAL PAGE LOADER */
-  #pageLoader {
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 999999;
-    background-color: #F4F8FD;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 1;
-    visibility: visible;
-    transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s ease;
-    pointer-events: all;
-  }
-  #pageLoader.page-loaded {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-  }
-  .page-loader-ring {
-    width: 26px;
-    height: 26px;
-    border: 2px solid rgba(15, 23, 42, 0.08);
-    border-top-color: #155EEF;
-    border-radius: 50%;
-    animation: pageLoaderSpin 0.75s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  }
-  @keyframes pageLoaderSpin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
+  
 </style>
 </head>
 <body>
-<!-- MINIMAL CLEAN LOADING SCREEN -->
-<div id="pageLoader" aria-hidden="true">
-  <div class="page-loader-ring"></div>
-</div>
+
 
 
 <!-- PROCEDURAL MICRO-NOISE OVERLAY -->
@@ -2416,17 +2381,6 @@ let wizard = {
 // =====================================================================
 // MINIMAL LOADER & BACKEND DATABASE SYNCHRONIZATION
 // =====================================================================
-function dismissPageLoader() {
-  const loader = document.getElementById('pageLoader');
-  if (loader && !loader.classList.contains('page-loaded')) {
-    loader.classList.add('page-loaded');
-    setTimeout(() => {
-      if (loader.parentNode) loader.style.display = 'none';
-    }, 360);
-  }
-}
-window.addEventListener('load', () => setTimeout(dismissPageLoader, 100));
-setTimeout(dismissPageLoader, 1200);
 
 async function syncProjectsWithBackend() {
   try {
