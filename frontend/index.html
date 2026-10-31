@@ -1696,8 +1696,8 @@ body:hover .cursor-aura {
 
 /* Scroll-driven Kinetic Reveal */
 .scroll-reveal {
-  opacity: 0;
-  transform: translateY(32px);
+  opacity: 1;
+  transform: translateY(0);
   transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
@@ -2288,9 +2288,19 @@ import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc } from "https
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-let currentView = 'landing';
+// Core State & Local Storage Initialization
+let profile = {
+  name: localStorage.getItem('user_name') || 'Flight Director',
+  email: localStorage.getItem('user_email') || 'director@qscope.io',
+  photo: localStorage.getItem('user_photo') || '',
+  ibmName: '',
+  crn: '',
+  ibmConnected: false
+};
+let projects = JSON.parse(localStorage.getItem('qscope_projects_v2') || '[]');
 let activeProjectId = projects[0]?.id || null;
 let activeRuntimeId = projects[0]?.runtimes?.[0]?.id || null;
+let currentView = 'landing';
 let projectTab = 'Main Page';
 let runtimeTab = 'Runtime Home';
 let wizardStep = 1;
@@ -2355,15 +2365,7 @@ function updateUserAvatar() {
   }
 }
 
-// User Profile
-let profile = {
-  name: localStorage.getItem('user_name') || 'Flight Director',
-  email: localStorage.getItem('user_email') || 'director@qscope.io',
-  photo: localStorage.getItem('user_photo') || '',
-  ibmName: '',
-  crn: '',
-  ibmConnected: false
-};
+// User Profile (moved to top)
 
 // Wizard State
 let wizard = {
@@ -2424,8 +2426,7 @@ async function deleteProjectFromBackend(id) {
   go('workspace');
 }
 
-// Projects storage
-let projects = JSON.parse(localStorage.getItem('qscope_projects_v2') || '[]');
+// Projects storage (moved to top)
 
 function saveProjectsLocal() {
   localStorage.setItem('qscope_projects_v2', JSON.stringify(projects));
